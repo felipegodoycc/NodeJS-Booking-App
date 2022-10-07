@@ -6,6 +6,8 @@ const timeslots = require('./ReqHandlers/GET-Handlers/timeslots.js');
 const book = require('./ReqHandlers/POST-Handlers/book.js');
 
 const app = express();
+const cors = require('cors');
+
 const auth = {};
 
 // Get the OAuth2 client for making Google Calendar API requests.
@@ -70,7 +72,7 @@ function handleBookAppointment(req, res) {
             res.send(data);
         });
 }
-
+app.use(cors())
 // Routes.
 app.get('/days', handleGetDays);
 app.get('/timeslots', handleGetTimeslots);

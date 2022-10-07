@@ -16,6 +16,7 @@ const TIMESLOTS_PATH = './Utility/timeslots.json';
  */
 function findMatchingTimeslot(timeslots, year, month, day, hour, minute) {
     const timeslotDate = new Date(Date.UTC(year, month-1, day, hour, minute)).toISOString();
+    console.log("Timeslot a reservar: ", timeslotDate)
     const foundTimeslot = timeslots.find(function (element) {
         //const elementDate = new Date(element.startTime).toISOString(); // Ensure matching ISO format.
         return element.startTime.includes(hour + ':' + minute  + ':00');
@@ -43,8 +44,9 @@ function bookAppointment(auth, year, month, day, hour, minute) {
         const timeslot = findMatchingTimeslot(timeslots, year, month, day, hour, minute);
         if (!timeslot) return resolve({success: false, message: 'Invalid time slot'});
         const date = year + '-' + month + '-' + day;
+        console.log("Timeslot encontrado");
         const event = appUtil.makeEventResource(date, timeslot.time.startTime, timeslot.time.endTime);
-
+        console.log("Evento: ", event)
         const calendar = google.calendar({version: 'v3', auth});
         calendar.events.insert({
             auth: auth,

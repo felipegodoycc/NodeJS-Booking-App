@@ -50,11 +50,11 @@ function makeEventResource(date, startTime, endTime) {
         'summary': 'appointment',
         'start': {
             'dateTime': date + startTime,
-            'timeZone': 'UTC',
+            'timeZone': 'America/Santiago',
         },
         'end': {
             'dateTime': date + endTime,
-            'timeZone': 'UTC',
+            'timeZone': 'America/Santiago',
         }
     };
 }

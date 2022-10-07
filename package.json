@@ -4,13 +4,19 @@
   "description": "An appointment booking web app written using JavaScript and powered by Node JS.",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "debug": "nodemon server.js",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "Aryan Nateq",
   "license": "GPL-3.0",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "googleapis": "^39.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
   }
 }

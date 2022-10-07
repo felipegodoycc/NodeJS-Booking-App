@@ -11,16 +11,22 @@ const TIMESLOTS_PATH = './Utility/timeslots.json';
  * @returns {object[]} resultsArr  An array containing all the available timeslots in the day.
  */
 function getResult(appointments) {
+    console.log("Reservas: ", appointments)
     const timeslots = (JSON.parse(fs.readFileSync(TIMESLOTS_PATH))).timeslots;
     let resultsArr = [];
     for (let i = 0; i < timeslots.length; i++) {
         const found = appointments.find(function (element) {
             const startTime = element.startTime;
-            const finalStartTime = startTime.substring(startTime.indexOf("T"), startTime.indexOf("Z") + 1);
+            const finalStartTime = startTime.substring(startTime.indexOf("T"), startTime.length - 6 );
             return timeslots[i].startTime.includes(finalStartTime);
         });
-        if (!found) {
-            resultsArr.push(timeslots[i]);
+        console.log("Encontrado? :", found)
+        if (found) {
+            console.log("Encontrado, no disponible")
+            resultsArr.push({ ...timeslots[i], available: false});
+        } else {
+            console.log("Disponible")
+            resultsArr.push({ ...timeslots[i], available: true });
         }
     }
     return resultsArr;
