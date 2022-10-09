@@ -45,18 +45,42 @@ function getNextDay(date) {
  * @param {string} endTime  The end time to associate with the 'end dateTime'.
  * @returns {object}  A Google Calendars 'events resource'.
  */
-function makeEventResource(date, startTime, endTime) {
+function makeEventResource(date, startTime, endTime, eventData) {
+    console.log("[makeEventResource] Creando evento", date, startTime, endTime, eventData)
+    try {
+        return {
+            'summary': `Reserva BossWash Santiago`, // Nombre del evento,
+            'location': 'San Pablo 2124, Santiago, 8340242, Región Metropolitana', 
+            'description': `Nombre: ${ eventData.name } ${ eventData.lastName} - Contacto: ${ eventData.phone }`, // Descripcion del evento
+            'attendees': [ // Invitados Ej: {'email': 'lpage@example.com'}
+                {
+                    'email': eventData.email
+                }
+            ],
+            'start': { // Inicio evento
+                'dateTime': date + startTime ,
+                'timeZone': 'America/Santiago',
+            },
+            'end': { // Fin evento
+                'dateTime': date + endTime ,
+                'timeZone': 'America/Santiago',
+            }
+        };
+    } catch (error) {
+        console.log("[makeEventResource] Error creando evento", error)
+    }
+}
+
+function parseBookingData({ date, time }) {
+    const [year, month, day] = date.split('-');
+    const [hour, minute] = time.substring(1, time.length - 6).split(':');
     return {
-        'summary': 'appointment',
-        'start': {
-            'dateTime': date + startTime,
-            'timeZone': 'America/Santiago',
-        },
-        'end': {
-            'dateTime': date + endTime,
-            'timeZone': 'America/Santiago',
-        }
-    };
+        year,
+        month,
+        day,
+        hour,
+        minute
+    }
 }
 
 module.exports = {
@@ -64,5 +88,6 @@ module.exports = {
     getCurrDateUTC,
     getDateFromISO,
     getNextDay,
-    makeEventResource
+    makeEventResource,
+    parseBookingData
 };
