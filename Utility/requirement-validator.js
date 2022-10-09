@@ -87,7 +87,8 @@ function checkMissingInputs(year, month, day, hour, minute) {
  * @param {number} minute  Minute of booking to check.
  * @returns {object}  Returns an object with info on why the booking was invalid.
  */
-function validateBooking(year, month, day, hour, minute) {
+function validateBooking({ year, month, day, hour, minute }) {
+    console.log("[validateBooking] Datos: ", year, month, day, hour, minute);
     const missingInputs = checkMissingInputs(year, month, day, hour, minute);
     if (missingInputs) return missingInputs;
     if (isInPast(year, month, day, hour, minute))
@@ -105,7 +106,7 @@ function validateBooking(year, month, day, hour, minute) {
  * @param {number} day  Day parameter to check.
  * @returns {object}  Returns an object with info on why the request was invalid.
  */
-function validateGetTimeslots(year, month, day) {
+function validateGetTimeslots( year, month, day) {
     const missingInputs = checkMissingInputs(year, month, day, '0', '0');
     if (missingInputs) return missingInputs;
     if (isInPast(year, month, day, undefined, undefined))
