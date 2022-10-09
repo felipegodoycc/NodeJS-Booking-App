@@ -59,19 +59,19 @@ function handleGetTimeslots(req, res) {
  * @param {object} res  The results object provided by Express. See Express doc.
  */
 function handleBookAppointment(req, res) {
-    const year = req.query.year;
-    const month = req.query.month;
-    const day = req.query.day;
-    const hour = req.query.hour;
-    const minute = req.query.minute;
-    book.bookAppointment(this.auth, year, month, day, hour, minute)
+    const eventData = req.body.eventData
+    const personalData = req.body.personalData;
+    book.bookAppointment(this.auth, eventData, personalData)
         .then(function(data) {
             res.send(data);
         })
         .catch(function(data) {
+            console.log("Error: ", data)
             res.send(data);
         });
 }
+
+app.use(express.json())
 app.use(cors())
 // Routes.
 app.get('/days', handleGetDays);
