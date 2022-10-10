@@ -18,6 +18,7 @@
 const fs = require('fs');
 const readline = require('readline');
 const {google} = require('googleapis');
+const { initLogger } = require('./logger');
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/calendar'];
@@ -26,12 +27,12 @@ const SCOPES = ['https://www.googleapis.com/auth/calendar'];
 // time.
 const TOKEN_PATH = './Utility/token.json';
 const CREDENTIALS_PATH = './Utility/credentials.json';
-
+const logger = initLogger('GCalendar')
 // Load client secrets from a local file.
 function initAuthorize(callback) {
     fs.readFile(CREDENTIALS_PATH, (err, content) => {
         if (err) {
-            console.log('The credentials.json file could not be found or was invalid. \n' +
+            logger.error('The credentials.json file could not be found or was invalid. \n' +
                 'Please visit: https://developers.google.com/calendar/quickstart/nodejs \n' +
                 'and generate a credentials.json file from that site. Then, place your \n' +
                 'credentials file into the "Utility" directory of this application.');
@@ -72,7 +73,7 @@ function getAccessToken(oAuth2Client, callback) {
         access_type: 'offline',
         scope: SCOPES,
     });
-    console.log('Authorize this app by visiting this url:', authUrl);
+    logger.debug('Authorize this app by visiting this url:', authUrl);
     const rl = readline.createInterface({input: process.stdin, output: process.stdout});
     rl.question('Enter the code from that page here: ', (code) => {
         rl.close();
@@ -82,7 +83,7 @@ function getAccessToken(oAuth2Client, callback) {
             // Store the token to disk for later program executions
             fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
                 if (err) return console.error(err);
-                console.log('Token stored to', TOKEN_PATH);
+                logger.debug('Token stored to', TOKEN_PATH);
             });
             callback(oAuth2Client);
         });

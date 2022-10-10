@@ -2,16 +2,17 @@ const fs = require('fs');
 const {google} = require('googleapis');
 const reqValidator = require('../../Utility/requirement-validator.js');
 const appUtil = require('../../Utility/appUtil.js');
+const { initLogger } = require('../../Utility/logger.js');
 
 const TIMESLOTS_PATH = './Utility/timeslots.json';
-
+const logger = initLogger('GET - Timeslots')
 /**
  * Returns an array with timeslots; excluding the timeslots that are booked (appointments).
  * @param {object} appointments  An Object containing info on the appointments booked in the day.
  * @returns {object[]} resultsArr  An array containing all the available timeslots in the day.
  */
 function getResult(appointments) {
-    console.log("[getResult] Reservas: ", appointments)
+    logger.debug("[getResult] Reservas: ", appointments)
     const timeslots = (JSON.parse(fs.readFileSync(TIMESLOTS_PATH))).timeslots;
     let resultsArr = [];
     for (let i = 0; i < timeslots.length; i++) {
@@ -40,7 +41,7 @@ function getResult(appointments) {
  */
 function getAvailTimeslots(auth, year, month, day) {
     return new Promise(function(resolve, reject) {
-        console.log("[getAvailTimeslots] Input data: ", {year, month, day})
+        logger.debug("[getAvailTimeslots] Input data: ", {year, month, day})
         const isInvalid = reqValidator.validateGetTimeslots(year, month, day);
         if (isInvalid) return reject(isInvalid);
 

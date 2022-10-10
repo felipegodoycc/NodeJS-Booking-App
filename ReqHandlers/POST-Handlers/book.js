@@ -2,8 +2,10 @@ const fs = require('fs');
 const {google} = require('googleapis');
 const reqValidator = require('../../Utility/requirement-validator.js');
 const appUtil = require('../../Utility/appUtil.js');
+const { initLogger } = require('../../Utility/logger.js');
 
 const TIMESLOTS_PATH = './Utility/timeslots.json';
+const logger = initLogger('POST - Book')
 /**
  * Searches using the provided date for a timeslot matching the hour and minute specified.
  * @param {object} timeslots  Object containing info on each timeslot for the day.
@@ -15,9 +17,9 @@ const TIMESLOTS_PATH = './Utility/timeslots.json';
  * @returns {object}  The timeslot object that was found. If nothing was found, returns undefined.
  */
 function findMatchingTimeslot(timeslots, { year, month, day, hour, minute }) {
-    console.log("[findMatchingTimeslot] Datos: ", year, month, day, hour, minute);
+    logger.debug("[findMatchingTimeslot] Datos: ", year, month, day, hour, minute);
     const timeslotDate = new Date(Date.UTC(year, month-1, day, hour, minute)).toISOString();
-    console.log("[findMatchingTimeslot] Timeslot a reservar: ", timeslotDate)
+    logger.debug("[findMatchingTimeslot] Timeslot a reservar: ", timeslotDate)
     const foundTimeslot = timeslots.find(function (element) {
         //const elementDate = new Date(element.startTime).toISOString(); // Ensure matching ISO format.
         return element.startTime.includes(hour + ':' + minute  + ':00');
@@ -36,8 +38,8 @@ function findMatchingTimeslot(timeslots, { year, month, day, hour, minute }) {
 function bookAppointment(auth, eventData, personalData) {
     // TO DO: Validar si el slot esta disponible
     return new Promise(function(resolve, reject) {
-        console.log("[bookAppointment] Event data: ", eventData);
-        console.log("[bookAppointment] User data: ", personalData);
+        logger.debug("[bookAppointment] Event data: ", eventData);
+        logger.debug("[bookAppointment] User data: ", personalData);
         const parsedEventData = appUtil.parseBookingData(eventData);
         const isInvalid = reqValidator.validateBooking(parsedEventData);
         if (isInvalid) return reject(isInvalid);
@@ -47,21 +49,20 @@ function bookAppointment(auth, eventData, personalData) {
         if (!timeslot) return resolve({success: false, message: 'Invalid time slot'});
         const date = eventData.date;
         const event = appUtil.makeEventResource(date, timeslot.time.startTime, timeslot.time.endTime, personalData);
-        console.log("[bookAppointment] Evento: ", event)
+        logger.debug("[bookAppointment] Evento: ", event)
         const calendar = google.calendar({version: 'v3', auth});
         calendar.events.insert({
             auth: auth,
             calendarId: 'primary',
-            sendNotifications: true,
             sendUpdates: 'all',
             resource: event
         }, function (err, res) {
             if (err){
-                resolve({ success: false, message: 'Error GCalendar API'})
-                return console.log('[bookAppointment] Error contacting the Calendar service: ' + JSON.stringify(err))
+                logger.error('[bookAppointment] Error contacting the Calendar service: ' + JSON.stringify(err))
+                return resolve({ success: false, message: 'Error GCalendar API'})
             };
             const event = res.data;
-            console.log('Appointment created: ', event.id);
+            logger.debug('Appointment created: ', event.id);
             const result = {startTime: event.start.dateTime, endTime: event.end.dateTime};
             const response = Object.assign({success: true}, result);
             return resolve(response);

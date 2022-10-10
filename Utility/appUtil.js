@@ -1,3 +1,6 @@
+const { initLogger } = require("./logger");
+
+const logger = initLogger('AppUtils')
 /**
  * Returns the last day of the month.
  * @param {number} year  The year.
@@ -6,6 +9,7 @@
  */
 function getLastDayOfMonth(year, month) {
     const lastDay = (new Date(Date.UTC(year, month, 0))).getUTCDate()
+    logger.debug("[getLastDayOfMonth] Last day: ", lastDay)
     return lastDay;
 }
 
@@ -15,7 +19,7 @@ function getLastDayOfMonth(year, month) {
  */
 function getCurrDateUTC() {
     const currDate = new Date();
-    console.log("[getCurrDateUTC] currentDateUTC: ", currDate.getUTCDate())
+    logger.debug("[getCurrDateUTC] currentDateUTC: ", currDate.getUTCDate())
     return currDate.getUTCDate();
 }
 
@@ -48,7 +52,7 @@ function getNextDay(date) {
  * @returns {object}  A Google Calendars 'events resource'.
  */
 function makeEventResource(date, startTime, endTime, eventData) {
-    console.log("[makeEventResource] Creando evento", date, startTime, endTime, eventData)
+    logger.debug("[makeEventResource] Creando evento", date, startTime, endTime, eventData)
     try {
         return {
             'summary': `Reserva BossWash Santiago`, // Nombre del evento,
@@ -69,7 +73,7 @@ function makeEventResource(date, startTime, endTime, eventData) {
             }
         };
     } catch (error) {
-        console.log("[makeEventResource] Error creando evento", error)
+        logger.error("[makeEventResource] Error creando evento", error)
     }
 }
 
