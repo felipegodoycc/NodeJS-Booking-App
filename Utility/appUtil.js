@@ -5,7 +5,8 @@
  * @returns {number}  The last day of the month.
  */
 function getLastDayOfMonth(year, month) {
-    return (new Date(Date.UTC(year, month, 0))).getUTCDate();
+    const lastDay = (new Date(Date.UTC(year, month, 0))).getUTCDate()
+    return lastDay;
 }
 
 /**
@@ -14,6 +15,7 @@ function getLastDayOfMonth(year, month) {
  */
 function getCurrDateUTC() {
     const currDate = new Date();
+    console.log("[getCurrDateUTC] currentDateUTC: ", currDate.getUTCDate())
     return currDate.getUTCDate();
 }
 
