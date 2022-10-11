@@ -7,15 +7,17 @@ const book = require('./ReqHandlers/POST-Handlers/book.js');
 
 const app = express();
 const cors = require('cors');
+const { initLogger } = require('./Utility/logger.js');
 
 const auth = {};
+const logger = initLogger('MainServer');
 
 // Get the OAuth2 client for making Google Calendar API requests.
 gcal.initAuthorize(setAuth);
 
 function setAuth(auth) {
     this.auth = auth;
-    console.log('\nServer is now running... Ctrl+C to end');
+    logger.info("Sesion iniciada en GApi")
 }
 
 /**
@@ -66,7 +68,7 @@ function handleBookAppointment(req, res) {
             res.send(data);
         })
         .catch(function(data) {
-            console.log("Error: ", data)
+            logger.error("Error: ", data)
             res.send(data);
         });
 }

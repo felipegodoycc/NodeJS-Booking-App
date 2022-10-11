@@ -2,30 +2,39 @@ const fs = require('fs');
 const {google} = require('googleapis');
 const reqValidator = require('../../Utility/requirement-validator.js');
 const appUtil = require('../../Utility/appUtil.js');
+const { initLogger } = require('../../Utility/logger.js');
 
 const TIMESLOTS_PATH = './Utility/timeslots.json';
-
+const logger = initLogger('GET - Timeslots')
 /**
  * Returns an array with timeslots; excluding the timeslots that are booked (appointments).
  * @param {object} appointments  An Object containing info on the appointments booked in the day.
  * @returns {object[]} resultsArr  An array containing all the available timeslots in the day.
  */
 function getResult(appointments) {
-    console.log("[getResult] Reservas: ", appointments)
+    logger.debug("[getResult] Reservas: %j", appointments)
     const timeslots = (JSON.parse(fs.readFileSync(TIMESLOTS_PATH))).timeslots;
     let resultsArr = [];
+    
     for (let i = 0; i < timeslots.length; i++) {
-        const found = appointments.find(function (element) {
-            const startTime = element.startTime;
-            const finalStartTime = startTime.substring(startTime.indexOf("T"), startTime.length - 6 );
-            return timeslots[i].startTime.includes(finalStartTime);
-        });
-        if (found) {
-            resultsArr.push({ ...timeslots[i], available: false});
+        if( appointments.find( (event) => event.summary === 'Bloquear' )){
+            logger.debug("Encontrado evento bloquear")
+            resultsArr.push({ ...timeslots[i], available: false})
         } else {
-            resultsArr.push({ ...timeslots[i], available: true });
+            const found = appointments.find(function (element) {
+                const startTime = element.startTime;
+                const finalStartTime = startTime.substring(startTime.indexOf("T"), startTime.length - 6 );
+                return timeslots[i].startTime.includes(finalStartTime);
+            });
+            
+            if (found) {
+                resultsArr.push({ ...timeslots[i], available: false});
+            } else {
+                resultsArr.push({ ...timeslots[i], available: true });
+            }
         }
     }
+    logger.debug("[getResult] Resultado slots: %j", resultsArr)
     return resultsArr;
 }
 
@@ -40,7 +49,7 @@ function getResult(appointments) {
  */
 function getAvailTimeslots(auth, year, month, day) {
     return new Promise(function(resolve, reject) {
-        console.log("[getAvailTimeslots] Input data: ", {year, month, day})
+        logger.debug("[getAvailTimeslots] Input data: ", {year, month, day})
         const isInvalid = reqValidator.validateGetTimeslots(year, month, day);
         if (isInvalid) return reject(isInvalid);
 
@@ -57,7 +66,7 @@ function getAvailTimeslots(auth, year, month, day) {
         }, (err, res) => {
             if (err) return reject({response: 'The API returned an error: ' + err});
             let appointments = res.data.items.map((event, i) => {
-                return {startTime: event.start.dateTime, endTime: event.end.dateTime};
+                return {startTime: event.start.dateTime, endTime: event.end.dateTime, summary: event.summary };
             });
             const result = {};
             result.timeslots = getResult(appointments);

@@ -1,7 +1,8 @@
 const {google} = require('googleapis');
 const reqValidator = require('../../Utility/requirement-validator.js');
 const appUtil = require('../../Utility/appUtil.js');
-
+const { initLogger } = require('../../Utility/logger.js');
+const logger = initLogger('GET - Days')
 /**
  * Searches through the given events (appointments), sees which appointments span
  * across a full days timeslots (11). If 11 appointment events are found within a
@@ -78,12 +79,12 @@ function getBookableDays(auth, year, month) {
             if (err) return reject({success: false,
                 message: 'The API returned an error - ' + err});
             const events = res.data.items;
-            console.log("[getBookableDays] Eventos: ", events)
+            logger.debug("[getBookableDays] Eventos: %j", events)
             const lastDay = appUtil.getLastDayOfMonth(year, month);
-            console.log("[getBookableDays] Lastday: ", lastDay)
+            logger.debug("[getBookableDays] Lastday: ", lastDay)
             let result = {};
             result.days = makeDaysArr(lastDay, getBookedDays(events));
-            console.log("[getBookableDays] Result days: ", result)
+            logger.debug("[getBookableDays] Result days: %j", result)
             const response = Object.assign({success: true}, result);
             resolve(response);
         });
