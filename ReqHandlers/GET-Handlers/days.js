@@ -79,12 +79,12 @@ function getBookableDays(auth, year, month) {
             if (err) return reject({success: false,
                 message: 'The API returned an error - ' + err});
             const events = res.data.items;
-            logger.debug("[getBookableDays] Eventos: ", events)
+            logger.debug("[getBookableDays] Eventos: %j", events)
             const lastDay = appUtil.getLastDayOfMonth(year, month);
             logger.debug("[getBookableDays] Lastday: ", lastDay)
             let result = {};
             result.days = makeDaysArr(lastDay, getBookedDays(events));
-            logger.debug("[getBookableDays] Result days: ", result)
+            logger.debug("[getBookableDays] Result days: %j", result)
             const response = Object.assign({success: true}, result);
             resolve(response);
         });
