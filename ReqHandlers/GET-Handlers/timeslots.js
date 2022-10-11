@@ -12,21 +12,29 @@ const logger = initLogger('GET - Timeslots')
  * @returns {object[]} resultsArr  An array containing all the available timeslots in the day.
  */
 function getResult(appointments) {
-    logger.debug("[getResult] Reservas: ", appointments)
+    logger.debug("[getResult] Reservas: %j", appointments)
     const timeslots = (JSON.parse(fs.readFileSync(TIMESLOTS_PATH))).timeslots;
     let resultsArr = [];
+    
     for (let i = 0; i < timeslots.length; i++) {
-        const found = appointments.find(function (element) {
-            const startTime = element.startTime;
-            const finalStartTime = startTime.substring(startTime.indexOf("T"), startTime.length - 6 );
-            return timeslots[i].startTime.includes(finalStartTime);
-        });
-        if (found) {
-            resultsArr.push({ ...timeslots[i], available: false});
+        if( appointments.find( (event) => event.summary === 'Bloquear' )){
+            logger.debug("Encontrado evento bloquear")
+            resultsArr.push({ ...timeslots[i], available: false})
         } else {
-            resultsArr.push({ ...timeslots[i], available: true });
+            const found = appointments.find(function (element) {
+                const startTime = element.startTime;
+                const finalStartTime = startTime.substring(startTime.indexOf("T"), startTime.length - 6 );
+                return timeslots[i].startTime.includes(finalStartTime);
+            });
+            
+            if (found) {
+                resultsArr.push({ ...timeslots[i], available: false});
+            } else {
+                resultsArr.push({ ...timeslots[i], available: true });
+            }
         }
     }
+    logger.debug("[getResult] Resultado slots: %j", resultsArr)
     return resultsArr;
 }
 
@@ -58,7 +66,7 @@ function getAvailTimeslots(auth, year, month, day) {
         }, (err, res) => {
             if (err) return reject({response: 'The API returned an error: ' + err});
             let appointments = res.data.items.map((event, i) => {
-                return {startTime: event.start.dateTime, endTime: event.end.dateTime};
+                return {startTime: event.start.dateTime, endTime: event.end.dateTime, summary: event.summary };
             });
             const result = {};
             result.timeslots = getResult(appointments);
